@@ -14,6 +14,11 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?       // фабрика вопросов
     private var currentQuestion: QuizQuestion?                  // вопрос на данный момент, который видит пользователь
     private var alertPresenter = AlertPresenter()
+    private var record = Set<Int>()
+    private var rightAnswer: Int = 0
+    private var numberOfGames: Int = 0
+    
+    
     
     
     // MARK: - Lifecycle
@@ -38,7 +43,7 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
         }
     }
     
-    
+    // MARK: - IBActions
     @IBAction func noButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else {
             return
@@ -57,10 +62,28 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     }
     
     
-    private func showQuizAlert(quiz model: AlertModel) {
-            alertPresenter.showAlert(model: model)
-        }
     
+    
+    
+    // MARK: - Private methods
+    private func reset() {
+        self.numberOfGames += 1
+        self.currentQuestionIndex = 0
+    }
+    
+    
+    private func date() -> String {
+        let date = Date()
+        let currentDate = DateFormatter()
+        currentDate.dateFormat = "dd.MM.yy hh:mm"
+        let now = currentDate.string(from: date)
+        return now
+    }
+    
+    private func gameRecord(num: Int) -> Int {
+        record.insert(num)
+        return record.max() ?? 0
+    }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {        // тут конвертируем информацию для экрана в состояние "Вопрос задан"
         return QuizStepViewModel(
@@ -117,18 +140,39 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     
     
     private func showNextQuestionOrResults() {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 0
+        
         if currentQuestionIndex == questionsAmount - 1 {
-            let text = correctAnswers == questionsAmount ?
-            "Поздравляем, Вы ответили на 10 из 10!" :
-            "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
-            let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: text,
-                buttonText: "Сыграть ещё раз")
-            show(quiz: viewModel)
+            
+            let titleText = "Этот раунд окончен!"
+            let massageText = """
+                    Ваш результат: \(rightAnswer)/10
+                    Количество сыгранных квизов: \(numberOfGames)
+                    Рекорд: \(gameRecord(num: rightAnswer))/10 (\(date()))
+                    Средняя точность: \(rightAnswer * 10).00%
+                    """
+            let buttonText = "Сыграть еще раз"
+            
+            
+            let viewModel = AlertModel(title: titleText,
+                                       message: massageText,
+                                       buttonText: buttonText) { [weak self] in
+                self?.currentQuestionIndex = 0
+                self?.correctAnswers = 0
+                
+                self?.questionFactory?.requestNextQuestion()
+            }
+            //            reset()
+            showQuizAlert(quiz: viewModel)
         } else {
-            self.questionFactory?.requestNextQuestion()
+            currentQuestionIndex += 1
+            questionFactory?.requestNextQuestion()
         }
+    }
+    
+    private func showQuizAlert(quiz model: AlertModel) {
+        alertPresenter.showAlert(model: model)
     }
 }
 
