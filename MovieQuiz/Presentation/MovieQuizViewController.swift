@@ -2,23 +2,21 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     
-    
+    // MARK: - IBOutlet
     @IBOutlet weak var imageView: UIImageView!
-    
     @IBOutlet weak var textLabel: UILabel!
-    
     @IBOutlet weak var counterLabel: UILabel!
     
-    private var correctAnswers: Int = 0
-    
+    // MARK: - Private Properties
     private var currentQuestionIndex: Int = 0
-    private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
+    private var correctAnswers: Int = 0                         // правильные ответы
+    private let questionsAmount: Int = 10                       // общее количество вопросов для квиза
+    private var questionFactory: QuestionFactoryProtocol?       // фабрика вопросов
+    private var currentQuestion: QuizQuestion?                  // вопрос на данный момент, который видит пользователь
+    private var alertPresenter = AlertPresenter()
     
     
     // MARK: - Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -28,7 +26,6 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     }
     
     // MARK: - QuestionFactoryDelegate
-    
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question else {
             return
@@ -60,17 +57,19 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     }
     
     
+    private func showQuizAlert(quiz model: AlertModel) {
+            alertPresenter.showAlert(model: model)
+        }
     
     
-    
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+    private func convert(model: QuizQuestion) -> QuizStepViewModel {        // тут конвертируем информацию для экрана в состояние "Вопрос задан"
         return QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
-    private func show(quiz step: QuizStepViewModel) {
+    private func show(quiz step: QuizStepViewModel) {                       // здесь мы заполняем нашу картинку, текст и счётчик данными
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
