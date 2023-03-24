@@ -15,7 +15,7 @@ protocol Question {
 
 
 class QuestionFactory: QuestionFactoryProtocol {
-    weak var delegate: QuetionFactoryDelegate?
+   private weak var delegate: QuetionFactoryDelegate?
     init(delegate: QuetionFactoryDelegate? = nil) {
         self.delegate = delegate
     }

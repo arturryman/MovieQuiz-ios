@@ -15,7 +15,6 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     private var currentQuestion: QuizQuestion?                  // вопрос на данный момент, который видит пользователь
     private var alertPresenter = AlertPresenter()
     private var record = Set<Int>()
-    private var rightAnswer: Int = 0
     private var numberOfGames: Int = 0
     
     
@@ -26,8 +25,8 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
         super.viewDidLoad()
         
         questionFactory = QuestionFactory(delegate: self)
-        
         questionFactory?.requestNextQuestion()
+        alertPresenter.viewController = self
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -147,15 +146,15 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
             
             let titleText = "Этот раунд окончен!"
             let massageText = """
-                    Ваш результат: \(rightAnswer)/10
+                    Ваш результат: \(correctAnswers)/10
                     Количество сыгранных квизов: \(numberOfGames)
-                    Рекорд: \(gameRecord(num: rightAnswer))/10 (\(date()))
-                    Средняя точность: \(rightAnswer * 10).00%
+                    Рекорд: \(gameRecord(num: correctAnswers))/10 (\(date()))
+                    Средняя точность: \(correctAnswers * 10)%
                     """
             let buttonText = "Сыграть еще раз"
             
             
-            let viewModel = AlertModel(title: titleText,
+            let viewModel = AlertModel(title: titleText, 
                                        message: massageText,
                                        buttonText: buttonText) { [weak self] in
                 self?.currentQuestionIndex = 0
@@ -163,7 +162,6 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
                 
                 self?.questionFactory?.requestNextQuestion()
             }
-            //            reset()
             showQuizAlert(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
@@ -174,5 +172,7 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     private func showQuizAlert(quiz model: AlertModel) {
         alertPresenter.showAlert(model: model)
     }
+    
+    
 }
 
