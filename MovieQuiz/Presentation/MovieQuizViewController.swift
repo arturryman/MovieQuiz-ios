@@ -14,7 +14,6 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?       // фабрика вопросов
     private var currentQuestion: QuizQuestion?                  // вопрос на данный момент, который видит пользователь
     private var alertPresenter = AlertPresenter()
-    private var record = Set<Int>()
     private var numberOfGames: Int = 0
     
     

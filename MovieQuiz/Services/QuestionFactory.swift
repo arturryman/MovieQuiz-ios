@@ -11,14 +11,18 @@ protocol Question {
     var question: [QuizQuestion] {get set}
 }
 
+protocol QuestionFactory {
+    func requestionNextQuetion()
+}
 
 
-
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactoryImpl: QuestionFactoryProtocol {
    private weak var delegate: QuetionFactoryDelegate?
-    init(delegate: QuetionFactoryDelegate? = nil) {
+    init(delegate: QuetionFactoryDelegate?) {
         self.delegate = delegate
     }
+    
+    
     private let questions: [QuizQuestion] = [
         QuizQuestion(
             image: "The Godfather",
@@ -63,15 +67,19 @@ class QuestionFactory: QuestionFactoryProtocol {
         
     ]
     
-    func requestNextQuestion() {
-        guard let index = (0..<questions.count).randomElement() else {
-            delegate?.didReceiveNextQuestion(question: nil)
-            return
-        }
-        
-        let question = questions[safe: index]
-        delegate?.didReceiveNextQuestion(question: question)
-    }
+    weak var delegate: QuetionFactoryDelegate?
 
-}
-
+       init(delegate: QuetionFactoryDelegate) {
+           self.delegate = delegate
+       }
+       
+       func requestNextQuestion() {
+           guard let index = (0..<questions.count).randomElement() else {          // рандом с выбором вопроса
+               delegate?.didReceiveNextQuestion(question: nil)
+               return
+           }
+           
+           let question = questions[safe: index]
+           delegate?.didReceiveNextQuestion(question: question)
+       }
+   }
