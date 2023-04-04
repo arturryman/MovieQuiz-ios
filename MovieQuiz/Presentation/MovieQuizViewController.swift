@@ -15,7 +15,7 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     private var currentQuestion: QuizQuestion?                  // вопрос на данный момент, который видит пользователь
     private var alertPresenter = AlertPresenter()
     private var numberOfGames: Int = 0
-    
+    private var bestGame: StatisticService?
     
     
     
@@ -23,7 +23,7 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        questionFactory = QuestionFactory(delegate: self)
+        questionFactory = QuestionFactoryImpl(delegate: self)
         questionFactory?.requestNextQuestion()
         alertPresenter.viewController = self
     }
@@ -78,10 +78,6 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
         return now
     }
     
-    private func gameRecord(num: Int) -> Int {
-        record.insert(num)
-        return record.max() ?? 0
-    }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {        // тут конвертируем информацию для экрана в состояние "Вопрос задан"
         return QuizStepViewModel(
@@ -147,7 +143,7 @@ final class MovieQuizViewController: UIViewController, QuetionFactoryDelegate {
             let massageText = """
                     Ваш результат: \(correctAnswers)/10
                     Количество сыгранных квизов: \(numberOfGames)
-                    Рекорд: \(gameRecord(num: correctAnswers))/10 (\(date()))
+                    Рекорд: \(bestGame(num: correctAnswers))/10 (\(date()))
                     Средняя точность: \(correctAnswers * 10)%
                     """
             let buttonText = "Сыграть еще раз"

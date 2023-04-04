@@ -67,7 +67,6 @@ final class QuestionFactoryImpl: QuestionFactoryProtocol {
         
     ]
     
-    weak var delegate: QuetionFactoryDelegate?
 
        init(delegate: QuetionFactoryDelegate) {
            self.delegate = delegate
